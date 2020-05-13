@@ -235,14 +235,133 @@ namespace SOFT562Week18
                     MySqlCommand cmd = new MySqlCommand(query, connection);
 
                     MySqlDataAdapter sqlDA = new MySqlDataAdapter(cmd);
-                    DataTable universityDataTable = new DataTable();
-                    sqlDA.Fill(universityDataTable);
+                    DataTable UserDataTable = new DataTable();
+                    sqlDA.Fill(UserDataTable);
 
-                    txtID.Text = Convert.ToString(universityDataTable.Rows[0]["FirstName"] + "hello");
+                    //filling in the fields regarding the user's general data
+
+                    txtID.Text = Convert.ToString(UserDataTable.Rows[0]["UserID"]);
+                    txtfirstname.Text = Convert.ToString(UserDataTable.Rows[0]["FirstName"]);
+                    txtlastname.Text = Convert.ToString(UserDataTable.Rows[0]["LastName"]);
+                    txtgender.Text = Convert.ToString(UserDataTable.Rows[0]["Gender"]);
+                    txtrelationship.Text = Convert.ToString(UserDataTable.Rows[0]["Relationship"]);
+                    txthometown.Text = Convert.ToString(UserDataTable.Rows[0]["Hometown"]);
+                    txtcity.Text = Convert.ToString(UserDataTable.Rows[0]["City"]);
+
+                    //filling in the Universities and workplaces database viewers.
+
+                    query = "select * from isad157_scandea.university where UserID=" + RequestedId;
+
+                    cmd = new MySqlCommand(query, connection);
+
+                    sqlDA = new MySqlDataAdapter(cmd);
+                    DataTable UniversityDataTable = new DataTable();
+                    sqlDA.Fill(UniversityDataTable);
+
+                    dataGridViewUniversities.DataSource = UniversityDataTable;
+
+                    //and now the workplace.. just copypaste that over, change 4 words..
+
+                    query = "select * from isad157_scandea.workplace where UserID=" + RequestedId;
+
+                    cmd = new MySqlCommand(query, connection);
+
+                    sqlDA = new MySqlDataAdapter(cmd);
+                    DataTable WorkplaceDataTable = new DataTable();
+                    sqlDA.Fill(WorkplaceDataTable);
+
+                    dataGridViewWorkplaces.DataSource = WorkplaceDataTable;
+
+                    //good, that went smooth, now let's create some custom listbox messages..
+                    //this will not be fun, but I hope the aspect will be better than just displaying the datatable.
+
+                    lstfriends.Items.Clear();
+                    lstmessages.Items.Clear();//for multiple searches, not to pile up.
+
+                    query = "select UserID2 from isad157_scandea.friend where UserID1=" + RequestedId;
+
+                    cmd = new MySqlCommand(query, connection);
+
+                    sqlDA = new MySqlDataAdapter(cmd);
+                    DataTable FriendDataTable = new DataTable();
+                    sqlDA.Fill(FriendDataTable);
+
+                    //we have a list of the User's friends ID-s in a datatable, now we extract the names from the users table.
+
+                    foreach(DataRow friendID in FriendDataTable.Rows)
+                    {
+                        query = "select FirstName,Lastname from isad157_scandea.users where UserID=" + Convert.ToString(friendID[0]);
+
+                        cmd = new MySqlCommand(query, connection);
+
+                        sqlDA = new MySqlDataAdapter(cmd);
+                        DataTable TempFriendDataTable = new DataTable();
+                        sqlDA.Fill(TempFriendDataTable);
+
+                        lstfriends.Items.Add(Convert.ToString(TempFriendDataTable.Rows[0]["FirstName"]) + " " + Convert.ToString(TempFriendDataTable.Rows[0]["LastName"]));
+
+                    }
+
+
+
+                    //and now the same thing for messages.
+                    //first messages sent by the user
+
+                    query = "select * from isad157_scandea.message where UserID1=" + RequestedId;
+
+                    cmd = new MySqlCommand(query, connection);
+
+                    sqlDA = new MySqlDataAdapter(cmd);
+                    DataTable MessageDataTable = new DataTable();
+                    sqlDA.Fill(MessageDataTable);
+
+                    foreach (DataRow FriendRow in MessageDataTable.Rows)
+                    {
+                        query = "select FirstName,Lastname from isad157_scandea.users where UserID=" + Convert.ToString(FriendRow[1]);
+
+                        cmd = new MySqlCommand(query, connection);
+
+                        sqlDA = new MySqlDataAdapter(cmd);
+                        DataTable FriendNameDataTable = new DataTable();
+                        sqlDA.Fill(FriendNameDataTable);
+
+                        string FriendName = Convert.ToString(FriendNameDataTable.Rows[0]["FirstName"]) + " " + Convert.ToString(FriendNameDataTable.Rows[0]["LastName"]);
+ 
+                        string DateTimemsg = Convert.ToString(FriendRow[2]);
+                        string FriendMessage = Convert.ToString(FriendRow[3]);
+
+                        lstmessages.Items.Add("To: " + FriendName + " at: " + DateTimemsg + " Message:" + FriendMessage);
+                    }
+
+                    //and now the Messages received
+
+
+                    query = "select * from isad157_scandea.message where UserID2=" + RequestedId;
+
+                    cmd = new MySqlCommand(query, connection);
+
+                    sqlDA = new MySqlDataAdapter(cmd);
+                    DataTable MessageReceivedDataTable = new DataTable();
+                    sqlDA.Fill(MessageReceivedDataTable);
+
+                    foreach(DataRow FriendRow in MessageReceivedDataTable.Rows)
+                    {
+                        query = "select FirstName,Lastname from isad157_scandea.users where UserID=" + Convert.ToString(FriendRow[1]);
+
+                        cmd = new MySqlCommand(query, connection);
+
+                        sqlDA = new MySqlDataAdapter(cmd);
+                        DataTable FriendNameDataTable = new DataTable();
+                        sqlDA.Fill(FriendNameDataTable);
+
+                        string FriendName = Convert.ToString(FriendNameDataTable.Rows[0]["FirstName"]) + " " + Convert.ToString(FriendNameDataTable.Rows[0]["LastName"]);
+
+                        string DateTimemsg = Convert.ToString(FriendRow[2]);
+                        string FriendMessage = Convert.ToString(FriendRow[3]);
+
+                        lstmessages.Items.Add("From: " + FriendName + " at: " + DateTimemsg + " Message:" + FriendMessage);
+                    }
                 }
-
-                
-
             }
             else
             {
