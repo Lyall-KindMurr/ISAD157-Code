@@ -364,7 +364,7 @@
             this.Controls.Add(this.groupBox1);
             this.Margin = new System.Windows.Forms.Padding(2);
             this.Name = "DatabaseForm";
-            this.Text = "Database Form Test";
+            this.Text = "Database Form Viewer";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridViewAdministrator)).EndInit();
             this.groupBox1.ResumeLayout(false);
             this.groupBox1.PerformLayout();
